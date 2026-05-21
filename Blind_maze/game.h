@@ -21,3 +21,17 @@ typedef struct {
     bool is_alive;
     bool has_won;
 } Player;
+typedef struct {
+    char grid[MAP_HEIGHT][MAP_WIDTH];
+    Player player;
+    int ticks_passed;
+} GameState;
+
+void init_game(GameState *game);
+void process_tick(GameState *game, char input);
+void render_game_to_buffer(const GameState *game, char *buffer);
+
+
+void find_path_astar(GameState *game, Position target);
+
+#endif 
