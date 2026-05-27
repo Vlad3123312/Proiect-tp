@@ -76,3 +76,27 @@ void check_collisions(GameState *game) {
         game->player.has_won = true;
     }
 }
+
+void process_tick(GameState *game, char input) {
+    game->ticks_passed++;
+    int nx = game->player.pos.x;
+    int ny = game->player.pos.y;
+
+    if (input == 'w') ny--;
+    if (input == 's') ny++;
+    if (input == 'a') nx--;
+    if (input == 'd') nx++;
+    if (input == 'i') game->player.infra_red_ticks = INFRARED_DURATION_TICKS;
+
+    if (game->grid[ny][nx] != '#') { 
+        game->player.pos.x = nx;
+        game->player.pos.y = ny;
+    }
+
+    if (game->player.infra_red_ticks > 0) {
+        game->player.infra_red_ticks--;
+    }
+
+    check_collisions(game);
+    update_madness(game);
+}
