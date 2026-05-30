@@ -35,8 +35,8 @@ void init_game(GameState *game) {
     game->player.is_alive = true;
     game->player.has_won = false;
     game->ticks_passed = 0;
-    
 }
+
 bool is_near_torch(const GameState *game) {
     for(int dy = -2; dy <= 2; dy++) {
         for(int dx = -2; dx <= 2; dx++) {
@@ -99,4 +99,42 @@ void process_tick(GameState *game, char input) {
 
     check_collisions(game);
     update_madness(game);
+}
+
+void render_game_to_buffer(const GameState *game, char *buffer) {
+    char line[256];
+    buffer[0] = '\0'; // Golim bufferul
+    
+    sprintf(line, "--- BLIND MAZE ---\n");
+    strcat(buffer, line);
+    sprintf(line, "Puncte: %d/3 | Madness: %.1f%% | Infra-Red: %s\n", 
+           game->player.points_collected, 
+           game->player.madness, 
+           game->player.infra_red_ticks > 0 ? "ACTIV" : "Inactiv (apasa 'i')");
+    strcat(buffer, line);
+
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            bool in_sight = (abs(game->player.pos.x - x) <= 1 && abs(game->player.pos.y - y) <= 1);
+            bool is_torch_and_ir_active = (game->grid[y][x] == 'T' && game->player.infra_red_ticks > 0);
+
+            if (game->player.pos.x == x && game->player.pos.y == y) {
+                strcat(buffer, "P");
+            } else if (in_sight || is_torch_and_ir_active) {
+                sprintf(line, "%c", game->grid[y][x]);
+                strcat(buffer, line);
+            } else {
+                strcat(buffer, " "); // Fog of war
+            }
+        }
+        strcat(buffer, "\n");
+    }
+
+    strcat(buffer, "\nControale: w/a/s/d (miscare) | i (infra-red) | q (iesire)\n");
+
+    if (game->player.has_won) {
+        strcat(buffer, "\nFELICITARI! Ai colectat toate punctele si ai supravietuit!\n");
+    } else if (!game->player.is_alive) {
+        strcat(buffer, "\nGAME OVER. Nivelul de Madness a atins 100%.\n");
+    }
 }
