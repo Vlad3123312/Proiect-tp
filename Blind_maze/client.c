@@ -49,3 +49,33 @@ int main() {
         printf("\n Conexiunea a esuat! Ai pornit ./server?\n");
         return -1;
     }
+while (1) {
+        memset(buffer, 0, BUFFER_SIZE);
+        int valread = read(sock, buffer, BUFFER_SIZE - 1);
+        
+        if (valread <= 0) {
+            printf("\nConexiune inchisa de server.\n");
+            break;
+        }
+
+        // Desenam starea primita de la server
+        system("clear");
+        printf("%s", buffer);
+
+        // Oprim executia daca primim mesajul de final
+        if (strstr(buffer, "GAME OVER") != NULL || strstr(buffer, "FELICITARI") != NULL) {
+            break;
+        }
+
+        // Citim si trimitem input-ul
+        char input = getch();
+        send(sock, &input, 1, 0);
+
+        if (input == 'q') {
+            break;
+        }
+    }
+
+    close(sock);
+    return 0;
+}
